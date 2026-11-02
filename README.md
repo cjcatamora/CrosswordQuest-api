@@ -20,8 +20,8 @@ This is my own build of my group's game concept. Every commit in this repository
 ## Setup
 
 ```
-git clone [repository-url]
-cd [folder-name]
+git clone https://github.com/cjcatamora/CrosswordQuest-api.git
+cd CrosswordQuest-api
 npm install
 ```
 
