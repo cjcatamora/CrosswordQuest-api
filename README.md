@@ -58,6 +58,18 @@ Base URL: `http://localhost:3001/api/v1`
 | GET | /game-info | Slug, name, group, developer, description, player limits, version | 200 |
 | GET | /results | Finished games, every player, and the top 3. Needs the `X-Hub-Key` header. Optional `?since=` | 200 (401 without the key) |
 
+### Question sets (host or admin; send the `X-Demo-User` header until login exists)
+
+| Method | Path | Purpose | Success | Errors |
+|---|---|---|---|---|
+| GET | /question-sets | A host's own sets (an admin sees all) | 200 | 401, 403 |
+| POST | /question-sets | Create a set. Body: `{ "name": "..." }` | 201 | 400, 401, 403, 409 |
+| GET | /question-sets/:id | One set (owner or admin) | 200 | 400, 401, 403, 404 |
+| PATCH | /question-sets/:id | Rename a set. Body: `{ "name": "..." }` | 200 | 400, 401, 403, 404, 409 |
+| DELETE | /question-sets/:id | Delete a set that no session uses | 204 | 400, 401, 403, 404, 409 |
+
+Test accounts (fictional): host `2099-0001`, second host `2099-0007`, player `2099-0002`.
+
 ## What "completed" means in my game
 
 A player completed the game when they solved at least one word (they have a row in `solved_words`) in a game that reached FINISHED. A player who joined but left early without solving any word is not completed.
