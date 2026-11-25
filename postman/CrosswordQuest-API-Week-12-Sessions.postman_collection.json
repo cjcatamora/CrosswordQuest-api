@@ -31,6 +31,14 @@
     {
       "key": "playerId",
       "value": ""
+    },
+    {
+      "key": "code2",
+      "value": ""
+    },
+    {
+      "key": "dupName",
+      "value": ""
     }
   ],
   "item": [
@@ -471,6 +479,232 @@
         "method": "GET",
         "header": [],
         "url": "{{baseUrl}}/sessions/999999"
+      }
+    },
+    {
+      "name": "Start another game",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"status is 201\", function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "pm.collectionVariables.set(\"code2\", pm.response.json().code);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-Demo-User",
+            "value": "{{host}}",
+            "type": "text"
+          }
+        ],
+        "url": "{{baseUrl}}/sessions",
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"set_id\": {{setId}} }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Join as player 1",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"status is 201\", function () {",
+              "  pm.response.to.have.status(201);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-Demo-User",
+            "value": "{{player}}",
+            "type": "text"
+          }
+        ],
+        "url": "{{baseUrl}}/sessions/{{code2}}/players",
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"nickname\": \"Ana\" }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "A taken nickname",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"status is 409\", function () {",
+              "  pm.response.to.have.status(409);",
+              "});",
+              "pm.test(\"error code is NICKNAME_TAKEN\", function () {",
+              "  pm.expect(pm.response.json().error.code).to.eql(\"NICKNAME_TAKEN\");",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-Demo-User",
+            "value": "{{player2}}",
+            "type": "text"
+          }
+        ],
+        "url": "{{baseUrl}}/sessions/{{code2}}/players",
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"nickname\": \"Ana\" }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "A set used by a game cannot be deleted",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"status is 409\", function () {",
+              "  pm.response.to.have.status(409);",
+              "});",
+              "pm.test(\"error code is QUESTION_SET_IN_USE\", function () {",
+              "  pm.expect(pm.response.json().error.code).to.eql(\"QUESTION_SET_IN_USE\");",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "X-Demo-User",
+            "value": "{{host}}",
+            "type": "text"
+          }
+        ],
+        "url": "{{baseUrl}}/question-sets/{{setId}}"
+      }
+    },
+    {
+      "name": "Make a set to repeat",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set(\"dupName\", \"Repeat \" + Date.now());"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"status is 201\", function () {",
+              "  pm.response.to.have.status(201);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-Demo-User",
+            "value": "{{host}}",
+            "type": "text"
+          }
+        ],
+        "url": "{{baseUrl}}/question-sets",
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"name\": \"{{dupName}}\" }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "A taken set name",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"status is 409\", function () {",
+              "  pm.response.to.have.status(409);",
+              "});",
+              "pm.test(\"error code is QUESTION_SET_NAME_TAKEN\", function () {",
+              "  pm.expect(pm.response.json().error.code).to.eql(\"QUESTION_SET_NAME_TAKEN\");",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-Demo-User",
+            "value": "{{host}}",
+            "type": "text"
+          }
+        ],
+        "url": "{{baseUrl}}/question-sets",
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"name\": \"{{dupName}}\" }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
       }
     }
   ]
