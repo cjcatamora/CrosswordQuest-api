@@ -9,18 +9,30 @@
 //     message: 'That nickname is already used in this game.',
 //   },
 //
-// A constraint that is not listed here still answers 409, with the code CONFLICT.
 module.exports = {
-  // question_sets.name is UNIQUE (Sequelize/PostgreSQL name it <table>_<column>_key).
+  // question_sets.name is UNIQUE (not named in the migration: <table>_<column>_key).
   question_sets_name_key: {
     status: 409,
     code: 'QUESTION_SET_NAME_TAKEN',
     message: 'A question set with that name already exists.',
   },
-  // game_sessions.set_id points at the set (see the restrict-set-delete migration).
+  // game_sessions.set_id -> question_sets (named in the restric-set-delete migration, NO ACTION).
   game_sessions_set_id_fkey: {
     status: 409,
     code: 'QUESTION_SET_IN_USE',
-    message: 'This question set is used by a game session, so it cannot be deleted.',
+    message: 'This question set was used in a game and cannot be deleted.',
+  },
+  // players (session_id, nickname) is UNIQUE (named in the create-players migration).
+  players_session_nickname_unique: {
+    status: 409,
+    code: 'NICKNAME_TAKEN',
+    message: 'That nickname is already used in this game.',
+  },
+  // solved_words (session_id, clue_id) is UNIQUE: a clue can be solved once per game.
+  // No endpoint reaches it yet; it is ready for the module that records answers.
+  solved_words_session_clue_unique: {
+    status: 409,
+    code: 'CLUE_ALREADY_SOLVED',
+    message: 'This clue has already been solved in this game.',
   },
 };
