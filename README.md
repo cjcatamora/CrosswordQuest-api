@@ -68,6 +68,18 @@ Base URL: `http://localhost:3001/api/v1`
 | PATCH | /question-sets/:id | Rename a set. Body: `{ "name": "..." }` | 200 | 400, 401, 403, 404, 409 |
 | DELETE | /question-sets/:id | Delete a set that no session uses | 204 | 400, 401, 403, 404, 409 |
 
+### Sessions and players
+
+| Method | Path | Who | Purpose | Success | Errors |
+|---|---|---|---|---|---|
+| POST | /sessions | host or admin | Start a game. Body: `{ "set_id": 1 }`. The server makes the 6-digit code. | 201 | 400, 401, 403, 404 |
+| GET | /sessions/:code | anyone | Read one game by its code | 200 | 400, 404 |
+| PATCH | /sessions/:code | host of that game | Body: `{ "status": "PLAYING" }` or `"FINISHED"` | 200 | 400, 401, 403, 404, 409 |
+| POST | /sessions/:code/players | any account | Join, or rejoin. Body: `{ "nickname": "Ana" }` | 201 new seat, 200 rejoin | 400, 401, 404, 409 |
+| GET | /sessions/:code/players | anyone | Nicknames, colors and scores | 200 | 400, 404 |
+
+Status flow: WAITING to PLAYING to FINISHED. A FINISHED game is never reopened or deleted.
+
 Test accounts (fictional): host `2099-0001`, second host `2099-0007`, player `2099-0002`.
 
 ## What "completed" means in my game

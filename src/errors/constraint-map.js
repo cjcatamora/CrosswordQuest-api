@@ -23,4 +23,10 @@ module.exports = {
     code: 'QUESTION_SET_IN_USE',
     message: 'This question set is used by a game session, so it cannot be deleted.',
   },
+  // players: one nickname per game.
+  players_session_nickname_unique: {
+    status: 409,
+    code: 'NICKNAME_TAKEN',
+    message: 'That nickname is already used in this game.',
+  },
 };
