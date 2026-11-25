@@ -1,0 +1,34 @@
+'use strict';
+
+module.exports = {
+  async up(queryInterface) {
+    // The owner of the set: ask the database for the host's ID, never type it.
+    const [hosts] = await queryInterface.sequelize.query(
+      "SELECT user_id FROM users WHERE username = 'demo.host'"
+    );
+    const hostId = hosts[0].user_id;
+
+    await queryInterface.bulkInsert('question_sets', [
+      { name: 'Demo: General Knowledge', host_id: hostId },
+    ]);
+
+    const [sets] = await queryInterface.sequelize.query(
+      "SELECT set_id FROM question_sets WHERE name = 'Demo: General Knowledge'"
+    );
+    const setId = sets[0].set_id;
+
+    await queryInterface.bulkInsert('clues', [
+      { set_id: setId, direction: 'ACROSS', start_row: 0, start_col: 0, clue_text: 'Philippine national hero', answer_text: 'RIZAL', answer_length: 5 },
+      { set_id: setId, direction: 'DOWN', start_row: 0, start_col: 0, clue_text: 'Flowing body of water', answer_text: 'RIVER', answer_length: 5 },
+      { set_id: setId, direction: 'DOWN', start_row: 0, start_col: 4, clue_text: 'Largest island in the Philippines', answer_text: 'LUZON', answer_length: 5 },
+      { set_id: setId, direction: 'ACROSS', start_row: 4, start_col: 0, clue_text: 'Sticky substance from trees', answer_text: 'RESIN', answer_length: 5 },
+    ]);
+  },
+
+  async down(queryInterface) {
+    await queryInterface.sequelize.query(
+      "DELETE FROM clues WHERE set_id IN (SELECT set_id FROM question_sets WHERE name = 'Demo: General Knowledge')"
+    );
+    await queryInterface.bulkDelete('question_sets', { name: 'Demo: General Knowledge' });
+  },
+};
